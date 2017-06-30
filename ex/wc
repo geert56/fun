@@ -1,0 +1,29 @@
+#! /usr/es/bin/fun -p
+/* Usage: wc [ <file> ]
+
+   This version is straight-forward but very slow:
+
+let fn = car (cdr Argv) in
+  let f = if (null fn) stdin (read fn) in
+    stdout (show (len (lines f))) " "
+           (show (len (words f))) " "
+           (show (len f))
+           (if (null fn) "\n" (stdout " " fn "\n"));
+*/
+
+/* An attempt at a faster version: */
+/* Turns out to be even (twice) slower. */
+letrec xwc = L s, nl, nw, nc, flag .
+  if (null s) [ nl, nw, nc ]
+    let c = car s, r = cdr s in
+    if (== c '\n')  (xwc r (+ nl 1)                nw     (+ nc 1) False)
+   (if (isspace c) (xwc r       nl                 nw     (+ nc 1) False)
+                   (xwc r       nl  (if flag nw (+ nw 1)) (+ nc 1) True))
+in
+ (let fn = (ith 1 Argv),
+      f  = if (null fn) stdin (read fn),
+      cc = xwc f 0 0 0 False in
+    stdout (show (ith 0 cc)) " "
+           (show (ith 1 cc)) " "
+           (show (ith 2 cc))
+           (if (null fn) "\n" (stdout " " fn "\n")));

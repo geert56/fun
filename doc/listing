@@ -1,0 +1,51 @@
+
+New SBNF Parser/LL(1) Verifier      version 1.0 (April 19, 1993)            page   1
+
+
+
+        1 /*
+        2  DOCUMENTATION INFORMATION                                         module: FUN
+        3  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        4  system    : Hewlett-Packard HP9000/S735
+        5  file      : lambda.syntax
+        6  unit-title: FUN PURE LAMBDA EXPRESSION GRAMMAR
+        7  ref.      : 
+        8  author(s) : Copyright (c) 1995-1997 G.L.J.M. Janssen
+        9  date      : 16-JAN-1997
+       10  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+       11 */
+       12 /*$C+*/
+       13 
+       14 /* Precedence from weak to strong: */
+       15 L_Expr  : L_Expr1 | Composition .
+       16 L_Expr1 : L_Expr2 | Abstraction .
+       17 L_Expr2 : L_Expr3 | Application .
+       18 L_Expr3 : Atom
+       19         .
+       20 
+       21 /* Composition is right-associative: f.g.h = (f.(g.h)) */
+       22 Composition : L_Expr1 '.' L_Expr .
+       23 
+       24 /* Abstraction extends as far to the right as possible, but it binds
+       25    stronger than Composition.
+       26    It is right-associative: L f.L g.h = (L f.(L g.h)).
+       27 */
+       28 Abstraction : 'L' DistinctVars '.' L_Expr1 .
+       29 
+       30 /* List of distinct variables (comma separators are optional). */
+       31 DistinctVars : { Variable / OptComma }+ .
+       32 
+       33 OptComma : [ ',' ] .
+       34 
+       35 /* Application is left-associative: f g h = ((f g) h) */
+       36 Application : L_Expr2 Abstraction
+       37             | L_Expr2 L_Expr3
+       38             .
+       39 
+       40 Atom : Constant
+       41      | Variable
+       42      | '(' L_Expr ')'
+       43      .
+
+No (compilation) errors detected
+Number of lines processed   :   43

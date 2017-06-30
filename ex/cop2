@@ -1,0 +1,2 @@
+#! /usr/es/bin/fun -p
+stdout (read (car (cdr Argv)));

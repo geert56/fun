@@ -1,0 +1,43 @@
+/*
+ DOCUMENTATION INFORMATION                                         module: FUN
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ system    : Hewlett-Packard HP9000/S735
+ file      : lambda.syntax
+ unit-title: FUN PURE LAMBDA EXPRESSION GRAMMAR
+ ref.      : 
+ author(s) : Copyright (c) 1995-1997 G.L.J.M. Janssen
+ date      : 16-JAN-1997
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*/
+/*$C+*/
+
+/* Precedence from weak to strong: */
+L_Expr  : L_Expr1 | Composition .
+L_Expr1 : L_Expr2 | Abstraction .
+L_Expr2 : L_Expr3 | Application .
+L_Expr3 : Atom
+        .
+
+/* Composition is right-associative: f.g.h = (f.(g.h)) */
+Composition : L_Expr1 '.' L_Expr .
+
+/* Abstraction extends as far to the right as possible, but it binds
+   stronger than Composition.
+   It is right-associative: L f.L g.h = (L f.(L g.h)).
+*/
+Abstraction : 'L' DistinctVars '.' L_Expr1 .
+
+/* List of distinct variables (comma separators are optional). */
+DistinctVars : { Variable / OptComma }+ .
+
+OptComma : [ ',' ] .
+
+/* Application is left-associative: f g h = ((f g) h) */
+Application : L_Expr2 Abstraction
+            | L_Expr2 L_Expr3
+            .
+
+Atom : Constant
+     | Variable
+     | '(' L_Expr ')'
+     .

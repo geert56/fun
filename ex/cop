@@ -1,0 +1,5 @@
+#! /usr/es/bin/fun -p
+let from = car (cdr Argv),
+    to   = car (cdr (cdr Argv)) in
+  if (null to) ((if (null from) stdout (write from)) stdin)
+    (write to (read from));

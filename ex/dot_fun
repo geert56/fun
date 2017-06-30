@@ -1,0 +1,20 @@
+/* This is an example .fun file to reside in your home directory. */
+
+/* Preferences: */
+let \<  s1 s2 = <  (strcmp s1 s2) 0;
+let \<= s1 s2 = <= (strcmp s1 s2) 0;
+let \=  s1 s2 = == (strcmp s1 s2) 0;
+let \>= s1 s2 = >= (strcmp s1 s2) 0;
+let \>  s1 s2 = >  (strcmp s1 s2) 0;
+let        \! = ith;
+
+/* Some Miranda style operators: */
+let  ~ = !;	/* not */
+let ~= = !=;	/* not equal */
+let \/ = ||;	/*  or */
+let  & = &&;	/* and */
+let  # = len;	/* length of list */
+let hd = car;	/* head of list */
+let tl = cdr;	/* tail of list */
+
+print ("Preferences in .fun loaded.\n");

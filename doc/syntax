@@ -1,0 +1,190 @@
+/*
+ DOCUMENTATION INFORMATION                                         module: FUN
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ system    : Hewlett-Packard HP9000/S735
+ file      : syntax (almost LALR(1) grammar)
+ unit-title: FUN FUNCTIONAL PROGRAMMING LANGUAGE GRAMMAR
+ ref.      : 
+ author(s) : Copyright (c) 1995-1997 G.L.J.M. Janssen
+ date      : 16-JAN-1997
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*/
+/*$C+*/
+
+Start : [ Input [ ';' ] ] .
+
+Input : { TopLevelCommand / ';' }+ .
+
+TopLevelCommand : 'print' '(' STRING ')'
+                | 'load'   STRING
+                | 'save'   STRING	/* Rather hairy! */
+		| 'undef'  { FunName / ',' }+
+	        | 'let'    Definitions
+	        | 'letrec' Definitions
+		| L_Expr [ WhereClause ]
+		.
+
+Definitions : { Definition / ',' }+ .
+
+Definition : FunName [ Args ] '=' L_Expr [ WhereClause ] .
+
+Args :     DistinctVars
+     | '(' DistinctVars ')'
+     .
+
+WhereClause : 'WHERE' Definitions 'END' .
+
+/* Precedence from weak to strong: */
+L_Expr  : L_Expr0 | Composition .
+L_Expr0 : L_Expr1 | InfixTerm .
+L_Expr1 : L_Expr2 | Abstraction .
+L_Expr2 : L_Expr3 | Application .
+L_Expr3 : Atom
+          /* let and letrec are right-associative. */
+        | 'let'    Definitions 'in' L_Expr
+        | 'letrec' Definitions 'in' L_Expr
+        .
+
+/* Composition is right-associative: f.g.h = (f.(g.h)) */
+Composition : L_Expr0 '.' L_Expr .
+
+/* Note: left-associative; same precendence for all InfixOps.
+   Optional rhs operand allows for currying of binary infix ops.
+   (so-called operator sections in Miranda/Gofer)
+*/
+InfixTerm : L_Expr0 InfixOp [ L_Expr1 ] .
+
+InfixOp : '$' FunName | '`' FunName '`' .
+
+/* Abstraction extends as far to the right as possible, but it binds
+   stronger than Composition.
+   It is right-associative: L f.L g.h = (L f.(L g.h)).
+*/
+Abstraction : 'L' DistinctVars '.' L_Expr1 .
+
+/* List of distinct variables (comma separators are optional). */
+DistinctVars : { Variable / OptComma }+ .
+
+OptComma : [ ',' ] .
+
+/* Application is left-associative: f g h = ((f g) h) */
+Application : L_Expr2 Abstraction
+            | L_Expr2 L_Expr3
+            .
+
+Atom : Constant
+     | Variable
+     | FunName
+     | '(' L_Expr ')'
+     | ListAggregate
+     | ListComprehension
+     .
+
+FunName  : IDENTIFIER | BuiltInFunctionDesignator .
+
+Variable : IDENTIFIER .
+
+Constant : INTEGER
+	 | FLOAT
+         | CHAR
+         | STRING
+         | 'Nil'
+         | 'False'
+         | 'True'
+         | 'Stddefs'
+         | 'Builtins'
+         | 'Argv'
+         .
+
+/* Notes:
+   []          means `Nil', the empty list
+   [:]         means `Cons', the basic list constructor function
+   [E:]        means `Cons E', curried
+   [E1:E2]     means `Cons E1 E2', a list
+   [E1,E2:E3]  means `[E1:[E2:E3]]', a list
+   [E1..En]    means `[E1,E1+1, ..., En]', if En >= E1
+   [E1..]      means `[E1,E1+1, ... ]', infinite progression
+   [E1,E2..En] means `[E1,E2,E2+(E2-E1), ... <=En]
+   [E1,E2..]   means `[E1,E2,E2+(E2-E1), ... ]', infinite progression
+*/
+ListAggregate : '[' [ [ L_Expr ] ':' ] ']'
+              | '[' { L_Expr / ',' }+ [ ':' L_Expr ] ']'
+              | '[' [ L_Expr   ',' ]
+                                     L_Expr '..' [ L_Expr ] ']'
+              .
+
+/* Note: [ E | ] means [ E ] */
+ListComprehension : '[' L_Expr '|' { Qualifier / ';' } ']' .
+
+Qualifier : Generator | Filter .
+
+/* In a Generator the variables (DistinctVars) MUST be separated by a comma.
+   This to avoid confusion with possible applications that occur as Filter.
+*/
+Generator : DistinctVars '<-' L_Expr .
+
+/* A Filter must be a Boolean expression. */
+Filter : L_Expr .
+
+/* These are all predefined but may be redefined/rebound by the user. */
+BuiltInFunctionDesignator : BooleanOps
+                          | ArithmeticOps
+                          | MoreArithmeticOps
+                          | ListOps
+                          | InputOutputOps
+                          | MiscOps
+                          .
+
+BooleanOps :
+  '!',          /* logical not */
+  '&&',         /* conditional logical and */
+  '||',         /* conditional logical or */
+  '->',         /* conditional logical implies */
+  'if'.         /* if-then-else */
+
+ArithmeticOps :
+  '^',          /* exponentiation */
+  '*',          /* multiplication */
+  '/',          /* division */
+  '%',          /* modulo */
+  '+',          /* addition */
+  '-',          /* subtraction (no unary minus) */
+  '=',          /* equal, ANY */
+  '!=',         /* not equal, ANY */
+  '<',          /* less than, CHAR, NUM, BOOL, NAME */
+  '<=',         /* less than or equal, CHAR, NUM, BOOL, NAME */
+  '>',          /* greater than, CHAR, NUM, BOOL, NAME */
+  '>=',         /* greater than or equal, CHAR, NUM, BOOL, NAME */
+  '<<',         /* shift bits left */
+  '>>'.         /* shift bits right */
+
+MoreArithmeticOps :
+  'sin', 'cos', 'tan',
+  'asin', 'acos', 'atan',
+  'sinh', 'cosh', 'tanh',
+  'asinh', 'acosh', 'atanh',
+  'exp', 'log', 'log10', 'log2',
+  'sqrt', 'ceil', 'abs', 'floor'.
+
+ListOps :
+  'Cons',       /* list constructor */
+  'car',        /* head of cons cell */
+  'cdr',        /* tail of cons cell */
+  'null',       /* test for nil, i.e., empty list */
+  'len',        /* length of list */
+  'ith',        /* i-th element of list (first is 0) */
+  '++'.         /* append lists */
+
+InputOutputOps :
+  'read',       /* read from file arg; returns list of chars  */
+  'write',      /* write 2nd arg to 1st arg file; returns 2nd arg  */
+  'shows',      /* show 1st arg as string appended to 2nd arg */
+  'stdout',     /* outputs arg to stdout as raw chars */
+  'stderr',     /* outputs arg to stderr as raw chars */
+  'stdin'.      /* reads stdin as list of chars till EOF (^D) */
+
+MiscOps :
+  'seq',        /* sequential evaluation */
+  'force',      /* forced evaluation */
+  'time',       /* cpu-time of forced eval in msecs [msecs,result] */
+  'error'.	/* outputs arg string to stderr and jumps to top-level */

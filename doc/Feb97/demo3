@@ -1,0 +1,5 @@
+letrec fib n = if (|| (== n 0) (== n 1)) n
+              (+ (fib (- n 1)) (fib (- n 2)));
+
+letrec fibs =
+  [ 1, 1 : [ (fst x) `+` (snd x) | x <- zip fibs (tail fibs) ]];

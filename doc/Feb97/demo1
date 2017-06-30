@@ -1,0 +1,5 @@
+let H = L fac . L n . if (== n 0) 1 (* n (fac (- n 1)));
+
+let Y = L h . (L x . h (x x)) L x . h (x x);
+
+let FAC = Y H;

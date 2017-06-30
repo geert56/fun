@@ -1,0 +1,234 @@
+.rm )k
+.\" Fonts mounted (should be adjusted to local fonts for proofprinting)
+.fp 1 R PR
+.\".fp 1 R H
+.fp 2 I H
+.fp 3 B HB
+.fp 4 H
+.fp 5 HB
+.PH ""
+.de T
+.ds sn "\\$1
+.bp
+.rs
+.\".sp |1.5c - A4
+.sp |3c
+.in 0
+.ce 0
+.ft HB
+.\" set here page number since is used in ++ macro
+.nr pn \\n%
+.nr ST \\n(ST+1
+.ps 24
+.vs 28
+.ce 10
+.if \\n(.$   \\$1
+.if \\n(.$-1 \\$2
+.if \\n(.$-2 \\$3
+.if \\n(.$-3 \\$4
+.if \\n(.$-4 \\$5
+.if \\n(.$-5 \\$6
+.vs 18
+.ps 25
+.\".ps 100
+.if \\n(.$ \\l'\\n(.lu'
+.mk
+.\".sp |26c - A4
+.sp |24.5c
+\\l'\\n(.lu'
+.ps 12
+.ft H
+.tl '\\*(FL''\\*(FR\\n(ST'
+.rt
+.ce 0
+.\".sp 1.5c - A4
+.sp 1c
+.ps 20
+.vs 24
+.fi
+.ad
+.ft 1
+..
+.\"******** define B for bullet list item
+.de B
+.sp 0.5
+.in 0.7c
+.ti -0.7c
+\(bu\h'|0.7c'\c
+..
+.de Br
+.\" Reset .B action
+.in -0.7c
+..
+.\" gj 22-9-89
+.\"******** define BB for bullet list item
+.de BB
+.sp 0.5
+.in 1.7c
+.ti -0.7c
+\(bu\h'|0.7c'\c
+..
+.\"******** define BP for bottom-of-page processing
+.de BP
+.if !'\\n%'\\n(pn' .tm Slide \\*(sn too long to fit onto one page
+.bp
+..
+.\"******** set page parameters
+.po 2.5c
+.ll 15.5c        \" actually 16c with 0.5c margin at both sides
+.lt 15.5c
+.pl 29.7c
+.wh -0.5c BP
+.fi
+.ad
+.hy 12
+.hc ^
+.ns
+.fi
+.ad
+.ft 1
+.ps 20
+.vs 24
+.nr pn 1
+.\" set date
+.if \n(mo-0 .ds DT 1
+.if \n(mo-1 .ds DT 2
+.if \n(mo-2 .ds DT 3
+.if \n(mo-3 .ds DT 4
+.if \n(mo-4 .ds DT 5
+.if \n(mo-5 .ds DT 6
+.if \n(mo-6 .ds DT 7
+.if \n(mo-7 .ds DT 8
+.if \n(mo-8 .ds DT 9
+.if \n(mo-9 .ds DT 10
+.if \n(mo-10 .ds DT 11
+.if \n(mo-11 .ds DT 12
+.as DT "/\n(dy/\n(yr
+.\" set a new date
+.de ND
+.if !\\n(.$ .tm "ND:missing arg"
+.\"date
+.ds DT "\\$1
+..
+.\" set name two arguments, for left and right footer resp.
+.de NM
+.if !\\n(.$ .tm "NM:missing arg"
+.ds FL "\\$1
+.ds FR "\\$2
+..
+.\" set foot font - ignored in ascis, only here for compatibility
+.de FF
+..
+.\" set slide number
+.de SN
+.if !\\n(.$ .tm "SN:missing arg"
+.\"slide number. Note: sn is already used for slide title
+.nr ST \\$1
+..
+.\" default
+.SN 0
+.\".NM "ASCIS Meeting" "Task A / TUE"
+.\"
+.\" Set default for algorithmic display
+.de Ab
+.sp -0.5
+.DS \\$1 \\$2 \\$3
+.ps 16
+.vs 18
+.ft CB
+..
+.\" Restore settings after algorithmic display
+.de Ae
+.DE
+.ft 1
+.ps 20
+.vs 24
+..
+.\" Set default for example display
+.de Eb
+.in +3n
+..
+.\" Restore settings after example display
+.de Ee
+.br
+.ft 1
+.in -3n
+.SP
+..
+.\" proofs
+.de Pb
+.SP
+.ft 2
+Proof:\ 
+.ft 1
+..
+.de Pe
+\(sq
+.SP
+..
+.de Db
+.sp 0.5
+.in +3n
+..
+.\" Restore settings
+.de De
+.br
+.ft 1
+.in -3n
+.SP
+..
+.de TG
+.SP
+.ft HB
+Theorem\ \\$1
+.ft 1
+\ 
+..
+.de LG
+.SP
+.ft HB
+Lemma\ \\$1
+.ft 1
+\ 
+..
+.\" corollaries
+.de CG
+.SP
+.ft HB
+Corollary\ \\$1
+.ft 1
+\ 
+..
+.\" literal display
+.de Lb
+.DS \\$1 \\$2 \\$3
+.ps 16
+.vs 20
+.ft CB
+..
+.\" Restore settings after literal display
+.de Le
+.DE
+.ft 1
+.ps 20
+.vs 24
+..
+.de Bb
+.mk a
+.sp 0.5
+..
+.de Be
+.sp -0.5
+.nf
+\h'-.5n'\L'|\\nau-1'\l'\\n(.lu+1n\(ul'\L'-|\\nau+1'\l'|0u-.5n\(ul'
+.fi
+..
+.de LL       \" draw a horizontal line
+.br
+.sp -0.35v
+\l'\\n(.lu\(ul'
+.sp 0.35v
+..
+.de us
+\\$1\l'|0\(ul'
+..

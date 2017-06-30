@@ -1,0 +1,531 @@
+.EQ
+define L	'lambda'
+.EN
+.\"
+.NM "ICS Colloquium - Feb 7, 1997" ""
+.\"
+.T "Title"
+.ps +6
+.vs +10
+.ce 100
+.ft HB
+Have FUN
+.P
+with
+.P
+Functional Programming
+.ft 1
+.sp 2
+Geert Janssen
+.\"
+.T "Contents Overview"
+.B
+Theory
+.DL
+.LI
+Lambda expressions
+.LI
+Reduction
+.LI
+Normal Form
+.LI
+Combinators
+.LE
+.B
+Practice:
+.DL
+.LI
+Compilation
+.LI
+Representation
+.LI
+Graph Reduction
+.LI
+Extended Syntax
+.LE
+.\"
+.T "Introduction"
+\fBFeatures of Functional Programming:\fP
+.B
+A program is an expression;
+.br
+execution evaluates it to a value.
+.B
+No side-effects, no assignments
+.B
+No pointers, no goto's
+.B
+In effect: no statements;
+sequencing is achieved by function applications
+.B
+Functions are first-class objects
+.B
+High-order functions
+.B
+Strongly-typed, but typing is optional
+.\"
+.T "Clear Contrast"
+When to evaluate function arguments?
+.B
+\fBImperative language:\fP
+.br
+Before function body is executed:
+
+Call by value $==>$ eager evaluation, applicative order reduction
+.B
+\fBFunctional language:\fP
+.br
+During execution of function body:
+
+Call by need (call on demand) $==>$ lazy evaluation, normal order reduction
+.\"
+.T "What's on the Market"
+.TS
+center;
+L L L .
+Lisp	McCarthy	1960
+FP	Backus	1978
+Hope	Burstall	1980
+Ponder	Fairbarn	1982
+ML	Cardelli	1983
+Lazy ML	Johnsson	1984
+Miranda	David Turner	1985
+Orwell	Philip Wadler	1990
+Haskell	Paul Hudak et.al.	1991
+Gofer	Mark P. Jones	1991
+.TE
+.\"
+.T "Lambda Expressions"
+.B
+Abstract Syntax:
+.Lb CB
+$L$-Expression ::= Constant
+              |  Var
+              |  Application
+              |  Abstraction
+
+Application ::= $L$-Expression $L$-Expression
+
+Abstraction ::= $L$ Var . $L$-Expression
+.Le
+.B
+Concrete Syntax:
+
+Application is left-associative and binds stronger than abstraction,
+which is right-associative.
+.P
+We also also introduce
+$L x1 x2 x3 . E$ as short-hand for $L x1 . L x2 . L x3 . E$.
+.\"
+.T "Free & Bound Occurrences"
+.TS
+expand box;
+L | L .
+$x$ in expression	occurs free?
+_
+$k$	No
+$x$	Yes
+$y$	No
+$E1^ E2$	$x$ free in $E1$ or $x$ free in $E2$
+$L x . E$	No
+$L y . E$	$x$ free in $E$
+.TE
+
+.TS
+expand box;
+L | L .
+$x$ in expression	occurs bound?
+_
+$k$	No
+$x$	No
+$y$	No
+$E1^ E2$	$x$ bound in $E1$ or $x$ bound in $E2$
+$L x . E$	$x$ free in $E$
+$L y . E$	$x$ bound in $E$
+.TE
+.\"
+.T "Conversions/Reductions"
+.VL 3
+.LI $alpha$:
+Consistent name-changing.
+.Lb
+$L x . E ^<->^ L y . E ~[. y / x .]$, $y$ not free in $E$
+.Le
+.LI $beta$:
+Function application.
+.Lb
+$ ( L x . E ) ^M ^<->^ E ~[. M / x .]$
+.Le
+.LI $eta$:
+Abstraction elimination.
+.Lb
+$L x . E x ^<->^ E$, $x$ not free in $E$
+.Le
+.LE
+.\"
+.T "Recursion"
+.Lb CB
+FAC = $L$ n . IF (= n 0) 1 (* n (FAC (- n 1)))
+
+FAC = $L$ n . (... FAC ...)
+
+FAC = ($L$ fac . $L$ n . (... fac ...)) FAC
+
+FAC = H FAC
+.Le
+.P
+FAC is a fixpoint of H.
+.P
+Invent function Y that delivers fixpoint of its argument, thus:
+.Lb CB
+H (Y H) = Y H
+.Le
+then
+.Lb CB
+FAC = Y H
+.Le
+Does Y exist as lambda expression? Yes:
+.Lb
+Y = $L$ h . ($L$ x . h (x x)) $L$ x . h (x x)
+.Le
+.P
+Proof:
+.Lb CB
+Y H
+= ($L$ h . ($L$ x . h (x x)) $L$ x . h (x x)) H
+= ($L$ x . H (x x)) $L$ x . H (x x)
+= H (($L$ x . H (x x)) $L$ x . H (x x))
+= H (Y H)
+.Le
+.\"
+.T "Reduction Order - Normal Form"
+.B
+A functional program is executed by repeatedly selecting and evaluating the
+next \fIreducible expression\fP, so-called \fIredex\fP.
+.B
+If an expression contains no redexes, evaluation is complete and the expression
+is said to be in \fInormal form\fP.
+.B
+Not every expression has a normal form!
+.B
+The `next' redex need not be unique: reduction may proceed along different
+sub-expression orders.
+.B
+Some reduction orders may reach a normal form, others might not!
+.B
+Do different reduction orders always lead to the same normal form?
+
+.Bb
+.ce 1
+Need some theory here
+.Be
+.\"
+.T "Church-Rosser Theorems"
+.TG "1:"
+If $E1 <-> E2$ then there exists an expression $E$ such that $E1 -> E$ and $E2
+-> E$.
+
+.CG
+No expression can be converted to two distinct normal forms;
+reductions that terminate reach the same result.
+
+.TG "2:"
+If $E1 -> E2$ and $E2$ is in normal form, then there exists a \fInormal
+order\fP reduction sequence from $E1$ to $E2$.
+
+Normal order reduction:
+.br
+reduce leftmost outermost redex first
+
+\f(HBBottom line:\fP
+If an expression has a normal form then normal order reduction will surely
+lead to it. Any other reduction order will never give a wrong result; it
+simply might not terminate.
+.\"
+.T "Normal Order Reduction"
+Guarantees that:
+
+Arguments to functions are evaluated only when needed.
+
+How to ensure that:
+
+When evaluated, arguments are evaluated only once?
+
+Answer: by so-called graph-reduction.
+
+
+.\"
+.T "Combinators - SKI-ing"
+.B
+\fBDefinition\fP: a combinator is a closed lambda-expression, i.e., it has no
+free variables (it is a pure function).
+.B
+For example, Y is a combinator.
+.B
+Define:
+.Lb CB
+S = $L$ f . $L$ g . $L$ x . f x (g x)
+.P
+K = $L$ x . $L$ y . x
+.P
+I = $L$ x . x
+.Le
+.B
+(Syntactic) Transformations:
+.Lb CB
+.TS
+L C L .
+$L$ x . E1 E2	$==>$	S ($L$ x . E1) ($L$ x . E2)
+
+$L$ x . c	$==>$	K c (Note: c $#$ x)
+
+$L$ x . x	$==>$	I
+.TE
+.Le
+.\"
+.T "SKI-Compilation"
+.Lb CB
+SK-Expression Compile ($L$-Expression E)
+{
+  while (E contains abstraction) {
+    Choose any innermost abstraction A;
+
+    switch (A) {
+    case $L$ x . E1 E2:
+      replace A by S ($L$ x . E1) ($L$ x . E2) in E;
+      break;
+
+    case $L$ x . c:
+      replace A by K c in E;
+      break;
+
+    case $L$ x . x:
+      replace A by I in E;
+      break;
+    }
+  }
+  return E;
+}
+.Le
+.\"
+.T "SK-Expression"
+.Lb CB
+SK-Expression ::= Constant
+               |  Combinator
+               |  FreeVar
+               |  Application
+
+Combinator ::= S | K | I
+
+Application ::= SK-Expression SK-Expression
+.Le
+
+.B
+Ergo: no more abstractions!
+.br
+No longer need to worry about free and bound variables.
+.\"
+.T "Example"
+.B
+Compilation:
+.Lb
+.TS
+L L .
+	($L$ x . + x x) 5
+$==>$	S ($L$ x . + x) ($L$ x . x) 5
+$==>$	S (S ($L$ x . +) ($L$ x . x)) ($L$ x . x) 5
+$==>$	S (S (K +) ($L$ x . x)) ($L$ x . x) 5
+$==>$	S (S (K +) I) ($L$ x . x) 5
+$==>$	S (S (K +) I) I 5
+.TE
+.Le
+
+.B
+Verify by reduction:
+.Lb
+.TS
+L L .
+	S (S (K +) I) I 5
+$->$	S (K +) I 5 (I 5)
+$->$	K + 5 (I 5) (I 5)
+$->$	+ (I 5) (I 5)
+$->$	+ 5 (I 5)
+$->$	+ 5 5
+$->$	10
+.TE
+.Le
+.\"
+.T "Representation of SK-Expression"
+.PSPIC figures/red0.idr 11c
+.\"
+.T "Graph Reduction 1"
+.PSPIC figures/red1.idr 15c
+.\"
+.T "Graph Reduction 2"
+.PSPIC figures/red2.idr 15c
+.\"
+.T "Graph Reduction 2b"
+.PSPIC figures/red2b.idr 15c
+.\"
+.T "Graph Reduction 3"
+.PSPIC figures/red3.idr 15c
+.\"
+.T "Graph Reduction 3b"
+.PSPIC figures/red3b.idr 15c
+.\"
+.T "Graph Reduction 4"
+.PSPIC figures/red4.idr 15c
+.\"
+.T "Graph Reduction 5"
+.PSPIC figures/red5.idr 15c
+.\"
+.T "Graph Reduction 6"
+.PSPIC figures/red6.idr 15c
+.\"
+.T "Graph Reduction 7"
+.PSPIC figures/red7.idr 15c
+.\"
+.T "Graph Reduction 8"
+.PSPIC figures/red8.idr 15c
+.\"
+.T "Graph Reduction 9"
+.PSPIC figures/red9.idr 14c
+.\"
+.T "Interpreter = Reductor"
+.\"
+.sp -1
+.Lb CB
+.ps -2
+.vs -2
+SK-expression Reduce (SK-expression E)
+{
+  saveTop:=Top;
+  R:=E;
+.P
+  forever {
+    switch (E) {
+\f(PI/* COMBINATOR: */\fP
+    case I:	\f(PI/* Redex: I f */\fP
+      *(Top-1):=f;               drop(1); break;
+    case K:	\f(PI/* Redex: K c x */\fP
+      *(Top-2):=c;               drop(2); break;
+    case S:	\f(PI/* Redex: S f g x */\fP
+      *(Top-3):=f x (g x);       drop(3); break;
+    case Y:	\f(PI/* Redex: Y f */\fP
+      *(Top-1):=f (Y f);         drop(1); break;
+.P
+\f(PI/* APPLICATION: */\fP
+    case @:	\f(PI/* Redex: E1 E2 */\fP
+      push(E); E:=E1;
+      break;
+.P
+\f(PI/* BUILT-IN FUNCTIONS: */\fP
+    case +:	\f(PI/* Redex: + E1 E2 */\fP
+      *(Top-2):=Reduce(E1) + Reduce(E2);
+      drop(2);
+      break;
+.P
+\f(PI/* ANYTHING ELSE, I.E., CONSTANTS & FREE VARS: */\fP
+    default:
+      Top:=saveTop;
+      return R;
+    }
+  }
+}
+.ps +2
+.vs +2
+.Le
+.\"
+.T "Extended Syntax"
+.Lb CB
+let { $vi$ = $Bi$ }+ in $E$
+	$==>$ let $v1$ = $B1$ in (let $v2$ = $B2$ in ... in $E$)
+
+let $v$ = $B$ in $E$
+	$==>$ ($L$ $v$ . $E$) $B$
+
+letrec $v$ = $B$ in $E$
+	$==>$ let $v$ = Y ($L$ $v$ . $B$) in $E$
+
+letrec { $vi$ = $Bi$ }+ in $E$
+	$==>$ (UNPACK-n ($L$ $vi$'s . $E$))
+	        (Y (UNPACK-n ($L$ $vi$'s . [ $Bi$ ]))).
+
+$E$ where { $vi$ = $Bi$ }+ end
+	$==>$ letrec { $vi$ = $Bi$ }+ in $E$
+.Le
+.\"
+.T "More Goodies"
+.B
+Lists, Arithmetic Series
+.B
+List comprehensions
+.B
+Pattern matching
+.B
+User-defined types
+.\"
+.T "Lists, Arithmetic Series"
+.B
+Syntax:
+.Lb CB
+List ::= '[' ']'
+      |  '[' ':' ']'
+      |  '[' $L$-Expr ':' ']'
+      |  '[' { $L$-Expr / ',' }+ ']'
+      |  '[' { $L$-Expr / ',' }+ ':' $L$-Expr ']'
+
+      |  '[' $L$-Expr '..' ']'
+      |  '[' $L$-Expr '..' $L$-Expr ']'
+      |  '[' $L$-Expr ',' $L$-Expr '..' ']'
+      |  '[' $L$-Expr ',' $L$-Expr '..' $L$-Expr ']'
+.Le
+.B
+Examples:
+.ps -2
+.ft CB
+.TS
+center;
+L C L .
+[]	$->$	[]
+.P
+[:] 1 [ 2, 3 ]	$->$	[ 1, 2, 3 ]
+.P
+[ 1, 2 : [ 3, 4 ]]	$->$	[ 1, 2, 3, 4 ]
+.P
+[ 1..5 ]	$->$	[ 1, 2, 3, 4, 5 ]
+.P
+[ 1, 3..8 ]	$->$	[ 1, 3, 5, 7 ]
+.P
+[ 1.. ]	$->$	[ 1, 2, 3, 4, ...
+.TE
+.\"
+.T "List Comprehensions"
+.B
+Syntax:
+.Lb CB
+ListComprehension ::=
+     '[' $L$-Expression '|' { Qualifier / ';' }+ ']'
+
+Qualifier ::= Generator | Filter
+
+Generator ::= { Var / ',' }+ '<-' $L$-Expression
+
+Filter ::= $L$-Expression
+.Le
+.B
+Examples:
+.Lb
+[ * n n | n <- [ 0.. ] ] $->$
+
+	[ 0, 1, 4, 9, 16, 25, ...
+
+[ n | n <- [ 0..8 ]; == (% n 2) 0 ] $->$
+
+	[ 0, 2, 4, 6, 8 ]
+
+[ [x,y] | x <- [1..3]; y <- [1..x] ] $->$
+
+	[ [ 1, 1 ], [ 2, 1 ], [ 2, 2 ],
+	  [ 3, 1 ], [ 3, 2 ], [ 3, 3 ] ]
+.Le

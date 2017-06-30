@@ -1,0 +1,30 @@
+Mon Dec  8 14:07:45 1997  Geert Janssen  <geert@cobra.ics.ele.tue.nl>
+
+	* Introduced use of general.h.
+	Modified source layout to comply with my new standard.
+
+Wed Jan 22 11:53:09 1997  Geert Janssen  <geert@cobra.ics.ele.tue.nl>
+
+	* Added support for floating point numbers.
+
+Thu Jan  9 15:10:46 1997  Geert Janssen  <geert@cobra.es.ele.tue.nl>
+
+	* fun.c (mk_defrecs): Serious bug here: part of an expression got
+	compiled more than once. Corrected by explicity compiling
+	sub-expression and marking it before use. Also made sure to
+	undefine any previous defs in a multiple defrec before the new
+	ones are created.
+
+Tue Jan  7 12:10:02 1997  Geert Janssen  <geert@cobra.es.ele.tue.nl>
+
+	* print.c (L_print_trunc): Added this function and support for its
+	functionality.
+
+	* Reconsidered handling of interrupts during reduction. Special
+	care is needed for operations like "length". Leaving the graph
+	in a corrupt state should be avoided.
+
+Sun Jan  5 22:25:00 1997  Geert Janssen  <geert@mamba.es.ele.tue.nl>
+
+	* fun.c (fun_init): v1.3, added type syntax but no semantics yet.
+

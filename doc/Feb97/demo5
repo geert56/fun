@@ -1,0 +1,2 @@
+let rotl l i = iter i rotl1 l
+  where rotl1 l  = ++ (tail l) [ fst l ] end;

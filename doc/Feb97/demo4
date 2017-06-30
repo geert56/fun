@@ -1,0 +1,1 @@
+let do fs x = [ f x | f <- fs ];

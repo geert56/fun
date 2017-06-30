@@ -1,0 +1,34 @@
+Excerpts from
+
+The Implementation of Functional Programming Languages
+Simon L. Peyton Jones,
+Prentice-Hall, 1987
+
+but converted to "fun"'s syntax and SBNF style of notation.
+
+Syntax of lambda expression:
+
+	exp : constant
+	    | variable
+	    | exp exp
+	    | L variable . exp
+	    .
+
+Syntax of enriched lambda expression:
+
+	exp : constant
+	    | variable
+	    | exp exp
+	    | L { variable }+ . exp
+	    | 'let' { def / ',' }+ 'in' exp
+	    | 'letrec' { def / ',' }+ 'in' exp
+	    .
+
+	def : variable = exp .
+
+Structured types:
+
+	tree ::= LEAF num | BRANCH tree tree
+
+LEAF and BRANCH are constructors and can be used as functions.
+

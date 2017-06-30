@@ -1,0 +1,11 @@
+#! /usr/es/bin/fun -p
+/* Usage: wc [ <file> ]
+
+   This version is straight-forward but very slow:
+*/
+let fn = car (cdr Argv) in
+  let f = if (null fn) stdin (read fn) in
+    stdout (show (len (lines f))) " "
+           (show (len (words f))) " "
+           (show (len f))
+           (if (null fn) "\n" (stdout " " fn "\n"));

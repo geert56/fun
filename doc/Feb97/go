@@ -1,0 +1,3 @@
+#use -P-a option for landscape 2 x A5 sheets
+groff $1 $2 -etp -mm sheets.tmac $HOME/include/eqn.h sheets.txt > sheets.ps
+#ghostview sheets.ps &

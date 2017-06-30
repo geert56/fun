@@ -1,0 +1,21 @@
+#! /usr/es/bin/fun -p
+/*
+letrec echo s = if (null s) ""
+                  (if (null (cdr s))
+                     (car s)
+                   (++ (++ (car s) " ") (echo (cdr s))))
+  in stdout (echo (cdr Argv)) "\n";
+*/
+letrec echo s = if (null (cdr s))
+                     (stdout (unshow (car s)))
+                   (seq (stdout (unshow (car s)) " ") (echo (cdr s)))
+  where unshow s = if (null s) ""
+    (if (&& (== (car s) '\\')
+            (&& (! (null (cdr s)))
+                (member (car (cdr s)) "abfnrtv")))
+				    /* a bcde fghijklm nopq rs tu v */
+        [ ith (- (car (cdr s)) 'a' ) "\a\b   \f       \n   \r \t \v"
+          : unshow (cdr (cdr s))]
+      [ (car s) : unshow (cdr s) ])
+  end
+  in if (null (cdr Argv)) [] (echo (cdr Argv) "\n");
