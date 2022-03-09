@@ -16,6 +16,7 @@
 #include <string.h>
 #include <limits.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include "alloc.h"
 
