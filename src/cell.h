@@ -45,25 +45,24 @@
 #define MIN_INT			((IntT) 1 << BITSPERINT-1)
 #define MAX_INT			(~MIN_INT)
 
-/* L_*: Possible type (tag) values for cell: */
-#define L_ABS_T			0
-#define L_COMB_T		0
-#define L_APP_T			1
-#define L_PF_T			2
-#define L_vE_T			3
-/* Data types (a bit each): */
-#define L_CONS_T		4
-#define L_FILE_T	        8
-#define L_NAM_T		       16
-#define L_BOOL_T	       32
-#define L_CHAR_T	       64
-#define L_INT_T		      128
-#define L_FLT_T		      256
+/* L_*: Possible type (tag) values for cell (2-bits): */
+#define L_ABS_T			0 /* abstraction */
+#define L_COMB_T		0 /* combinator */
+#define L_APP_T			1 /* application */
+#define L_PF_T			2 /* predefined (built-in) function */
+#define L_vE_T			3 /* v <- E and v = E */
+/* Data types (a bit each; total 7): */
+#define L_CONS_T		4 /* list: [...] */
+#define L_FILE_T	        8 /* file: */
+#define L_NAM_T		       16 /* variable name: v */
+#define L_BOOL_T	       32 /* boolean: False, True */
+#define L_CHAR_T	       64 /* character: 'A' */ 
+#define L_INT_T		      128 /* integer: 42 */
+#define L_FLT_T		      256 /* floating-point: 3.14 */
 /* Derived types: */
 #define L_NUM_T			(L_INT_T|L_FLT_T)
 #define L_ORD_T			(L_NAM_T|L_BOOL_T|L_CHAR_T|L_NUM_T)
-#define L_ANY_T			(L_CONS_T|L_FILE_T|L_NAM_T|\
-                                 L_BOOL_T|L_CHAR_T|L_NUM_T)
+#define L_ANY_T			(L_CONS_T|L_FILE_T|L_ORD_T)
 
 /* PF_*: Built-in functions (value goes in aux field): */
 #define PF_FIRST		 0
