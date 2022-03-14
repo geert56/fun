@@ -94,7 +94,7 @@ L_optimise(L_EXPR E1, L_EXPR E2)
 	  /* S (K E4) ((B E7) E6) => B* E4 E7 E6 */
 /*3*/	  return Bs_APP(E4, L_RAND(E5), E6);
 
-	/* S (K E4) (E5) => B E4 E2 */
+	/* S (K E4) (E5 E6) => B E4 E2 */
       }
       /* S (K E4) E2 => B E4 E2 */
 /*4*/ return B_APP(E4, E2);
