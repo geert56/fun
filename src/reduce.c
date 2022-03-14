@@ -472,9 +472,13 @@ L_reduce_lazy(L_EXPR E)
 	  break;
 
 	case C_COMB:
-	  /* 3c.(((C f) g) x)      --> (f x) g */
-	  L_RATOR(E) = APP2(A(1), A(3));
-	  L_RAND (E) = A(2);
+	  {
+	    L_EXPR A2 = A(2);
+
+	    /* 3c.(((C f) g) x)      --> (f x) g */
+	    L_RATOR(E) = APP2(A(1), A(3));
+	    L_RAND (E) = A2;
+	  }
 	  break;
 
 	case Sp_COMB:
